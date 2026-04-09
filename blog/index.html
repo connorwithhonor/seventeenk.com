@@ -1,1 +1,188 @@
-{"id":"/blog/index.html","path":"/blog/index.html","sha":"0e25078f26d17c5364c64a012202aaeb2a438e13","mime_type":"text/html","size":12037,"site_id":"9e278af3-1504-4450-80cb-3aca10a90fe4","deploy_id":"69d4638eb6d195eee1655f19"}
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Blog | SeventeenK | $17,000 Fixed Fee Real Estate</title>
+<meta name="description" content="Real estate insights for sellers who want to keep more equity. Commission truth, net proceeds strategy, and the $17K fixed fee advantage.">
+<meta property="og:title" content="SeventeenK Blog | $17,000 Fixed Fee Real Estate">
+<meta property="og:description" content="Commission truth. Net proceeds strategy. The math most agents hope you never run.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://seventeenk.com/blog/">
+<link rel="canonical" href="https://seventeenk.com/blog/">
+<link rel="icon" href="https://assets.cdn.filesafe.space/wGQNykcwXU4XZhG6toH7/media/69d4269da7dcb4cff0f0099a.svg" type="image/svg+xml">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+3:wght@300;400;500;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0c;--bg2:#111114;--bg3:#1a1a1e;--text:#e8e6e3;--text2:#a09e9a;--text3:#6b6966;--gold:#d4a017;--gold2:#e8b829;--border:#2a2a30;--border2:#1e1e24}
+body{background:var(--bg);color:var(--text);font-family:'Source Sans 3',sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--gold);text-decoration:none}a:hover{color:var(--gold2)}
+
+.blog-nav{position:sticky;top:0;z-index:100;background:rgba(10,10,12,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border2);padding:14px 0}
+.blog-nav-inner{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between}
+.blog-nav-brand{display:flex;align-items:center;gap:14px;text-decoration:none}
+.brand-name{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;letter-spacing:2px;line-height:1}
+.brand-sub{font-size:11px;color:var(--text3);letter-spacing:.5px}
+.blog-nav-links{display:flex;gap:20px;align-items:center}
+.blog-nav-links a{color:var(--text2);font-size:14px}
+.blog-nav-cta{background:var(--gold);color:#0a0a0c;padding:8px 18px;border-radius:4px;font-weight:700;font-size:13px;letter-spacing:.5px;text-transform:uppercase}
+.blog-nav-cta:hover{background:var(--gold2);color:#0a0a0c}
+
+.blog-index-hero{max-width:1100px;margin:0 auto;padding:80px 24px 24px;text-align:center}
+.blog-index-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,6vw,56px);color:#fff;letter-spacing:2px;margin-bottom:4px}
+.blog-index-hero .sub{color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;margin-bottom:12px}
+.blog-index-hero p{color:var(--text2);font-size:17px;max-width:600px;margin:0 auto}
+
+/* SEARCH + FILTER */
+.blog-controls{max-width:1100px;margin:0 auto;padding:20px 24px 32px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:center}
+.blog-search{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:10px 16px;color:var(--text);font-size:15px;font-family:'Source Sans 3',sans-serif;width:320px;outline:none;transition:border-color .2s}
+.blog-search:focus{border-color:var(--gold)}
+.blog-search::placeholder{color:var(--text3)}
+.filter-btn{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:6px 16px;color:var(--text2);font-size:13px;cursor:pointer;transition:all .2s;font-family:'Source Sans 3',sans-serif}
+.filter-btn:hover,.filter-btn.active{background:var(--gold);color:#0a0a0c;border-color:var(--gold);font-weight:600}
+.article-count{color:var(--text3);font-size:13px;width:100%;text-align:center;margin-top:4px}
+
+.blog-grid{max-width:1100px;margin:0 auto;padding:0 24px 80px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px}
+.blog-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:border-color .2s,transform .2s;text-decoration:none;display:block}
+.blog-card:hover{border-color:var(--gold);transform:translateY(-2px)}
+.blog-card-img{width:100%;aspect-ratio:16/9;object-fit:cover;border-bottom:1px solid var(--border)}
+.blog-card-body{padding:20px 24px 24px}
+.card-cat{color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;margin-bottom:8px}
+.blog-card h2{font-family:'Bebas Neue',sans-serif;font-size:21px;color:#fff;line-height:1.2;letter-spacing:.5px;margin-bottom:8px}
+.blog-card p{color:var(--text2);font-size:14px;line-height:1.6;margin-bottom:14px}
+.read-more{color:var(--gold);font-size:13px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.blog-card.hidden{display:none}
+
+.no-results{text-align:center;padding:60px 24px;color:var(--text3);font-size:16px;display:none}
+
+.blog-footer{border-top:1px solid var(--border2);padding:40px 24px;text-align:center;max-width:1100px;margin:0 auto}
+.blog-footer .footer-brand{color:var(--text3);font-size:13px;margin-bottom:8px}
+.blog-footer .footer-legal{color:var(--text3);font-size:12px;line-height:1.6}
+.blog-footer a{color:var(--text3)}
+
+@media(max-width:600px){.blog-nav-links{display:none}.blog-search{width:100%}.blog-controls{flex-direction:column}}
+</style>
+<link rel="icon" type="image/x-icon" href="/favicon.ico"><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"><link rel="apple-touch-icon" sizes="180x180" href="/favicon-180.png"><meta property="og:image" content="https://seventeenk.com/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://seventeenk.com/og-image.png"></head><body>
+<nav class="blog-nav"><div class="blog-nav-inner">
+  <a href="https://seventeenk.com" class="blog-nav-brand">
+    <div><span class="brand-name">SEVENTEENK</span><br><span class="brand-sub">One Fee. Full Service. $17,000.</span></div>
+  </a>
+  <div class="blog-nav-links">
+    <a href="https://seventeenk.com">Home</a>
+    <a href="https://seventeenk.com/blog/">Blog</a>
+    <a href="https://sellersonlyagent.com">Sellers Only Agent</a>
+    <a href="https://scv123.com" class="blog-nav-cta">Get Your Net Sheet</a>
+  </div>
+</div></nav>
+
+<div class="blog-index-hero">
+  <h1>THE SEVENTEENK BLOG</h1>
+  <div class="sub">$17,000 FIXED FEE &middot; FULL SERVICE &middot; SELLERS ONLY</div>
+  <p>Commission truth. Net proceeds strategy. The math that most agents hope you never run.</p>
+</div>
+
+<div class="blog-controls">
+  <input type="text" class="blog-search" placeholder="Search articles..." id="blogSearch">
+  <button class="filter-btn active" data-cat="all">All</button>
+  <button class="filter-btn" data-cat="commission-truth">Commission Truth</button>
+  <button class="filter-btn" data-cat="seller-costs">Seller Costs</button>
+  <button class="filter-btn" data-cat="seller-math">Seller Math</button>
+  <button class="filter-btn" data-cat="industry-changes">Industry Changes</button>
+  <button class="filter-btn" data-cat="agent-truth">Agent Truth</button>
+  <div class="article-count" id="articleCount">Showing 5 articles</div>
+</div>
+
+<div class="blog-grid" id="blogGrid">
+
+  <a href="/blog/how-real-estate-commissions-work-california" class="blog-card" data-cat="commission-truth" data-search="commission percentage california negotiable 2026 fixed fee seventeen">
+    <img class="blog-card-img" src="https://img.youtube.com/vi/uwJWzg3iGLU/maxresdefault.jpg" alt="How real estate commissions work in California" loading="lazy">
+    <div class="blog-card-body">
+      <div class="card-cat">Commission Truth</div>
+      <h2>How Real Estate Commissions Actually Work in California in 2026</h2>
+      <p>Commissions are negotiable by law. Most agents hope you never act on that. Here is how the math actually works and why a fixed fee changes everything.</p>
+      <span class="read-more">Read Article &rarr;</span>
+    </div>
+  </a>
+
+  <a href="/blog/hidden-costs-selling-home" class="blog-card" data-cat="seller-costs" data-search="hidden costs escrow title transfer tax closing vendor fees negotiate">
+    <img class="blog-card-img" src="https://img.youtube.com/vi/55p5S07n4Qo/maxresdefault.jpg" alt="Hidden costs of selling a home" loading="lazy">
+    <div class="blog-card-body">
+      <div class="card-cat">Seller Costs</div>
+      <h2>The Hidden Costs of Selling a Home That Most Agents Never Mention</h2>
+      <p>Escrow, title, transfer tax, and vendor fees. Most agents ignore them. We negotiate every one.</p>
+      <span class="read-more">Read Article &rarr;</span>
+    </div>
+  </a>
+
+  <a href="/blog/calculate-net-selling-home-santa-clarita" class="blog-card" data-cat="seller-math" data-search="calculate net proceeds santa clarita sell home formula take home equity">
+    <img class="blog-card-img" src="https://img.youtube.com/vi/Yyut5jRFUnM/maxresdefault.jpg" alt="Calculate your net when selling" loading="lazy">
+    <div class="blog-card-body">
+      <div class="card-cat">Seller Math</div>
+      <h2>How to Calculate What You Actually Net When Selling Your Home in Santa Clarita</h2>
+      <p>Sale price is not your take-home. Here is the formula and where the $17K model saves you real money.</p>
+      <span class="read-more">Read Article &rarr;</span>
+    </div>
+  </a>
+
+  <a href="/blog/nar-settlement-what-changed-sellers" class="blog-card" data-cat="industry-changes" data-search="NAR settlement buyer agent compensation rules 2024 changes transparency">
+    <img class="blog-card-img" src="https://img.youtube.com/vi/5uMldihpVCo/maxresdefault.jpg" alt="NAR settlement changes for sellers" loading="lazy">
+    <div class="blog-card-body">
+      <div class="card-cat">Industry Changes</div>
+      <h2>What the NAR Settlement Changed for Sellers and What Stayed the Same</h2>
+      <p>Buyer agent rules changed. Listing commissions did not. Here is what smart sellers are doing in 2026.</p>
+      <span class="read-more">Read Article &rarr;</span>
+    </div>
+  </a>
+
+  <a href="/blog/why-most-agents-overcharge-sellers" class="blog-card" data-cat="agent-truth" data-search="overcharge percentage same work higher price agents justify commission">
+    <img class="blog-card-img" src="https://img.youtube.com/vi/Nz_ificHykg/maxresdefault.jpg" alt="Why agents overcharge sellers" loading="lazy">
+    <div class="blog-card-body">
+      <div class="card-cat">Agent Truth</div>
+      <h2>Why Most Real Estate Agents Overcharge Sellers and How to Spot It</h2>
+      <p>Same work. Double the fee. The percentage model has survived because nobody challenged it. Until now.</p>
+      <span class="read-more">Read Article &rarr;</span>
+    </div>
+  </a>
+
+</div>
+
+<div class="no-results" id="noResults">No articles match your search. Try different keywords.</div>
+
+<footer class="blog-footer">
+  <div class="footer-brand"><a href="https://honorelevate.com">Coded by Connor with Honor</a> | AI Growth Architect</div>
+  <div class="footer-legal">Connor T. MacIvor &middot; SeventeenK.com &middot; CA DRE #01238257 &middot; SYNC Brokerage &middot; <a href="tel:+16614001720">661-400-1720</a><br>
+  <a href="https://sellersonlyagent.com">SellersOnlyAgent.com</a> &middot; <a href="https://connorwithhonor.com">ConnorWithHonor.com</a> &middot; <a href="https://scv123.com">SCV123.com</a></div>
+</footer>
+
+<script>
+const cards = document.querySelectorAll('.blog-card');
+const search = document.getElementById('blogSearch');
+const filters = document.querySelectorAll('.filter-btn');
+const countEl = document.getElementById('articleCount');
+const noResults = document.getElementById('noResults');
+let activeCat = 'all';
+
+function filterCards() {
+  const q = search.value.toLowerCase().trim();
+  let visible = 0;
+  cards.forEach(card => {
+    const cat = card.dataset.cat;
+    const searchText = (card.dataset.search + ' ' + card.textContent).toLowerCase();
+    const catMatch = activeCat === 'all' || cat === activeCat;
+    const searchMatch = !q || searchText.includes(q);
+    if (catMatch && searchMatch) { card.classList.remove('hidden'); visible++; }
+    else { card.classList.add('hidden'); }
+  });
+  countEl.textContent = visible === 1 ? 'Showing 1 article' : 'Showing ' + visible + ' articles';
+  noResults.style.display = visible === 0 ? 'block' : 'none';
+}
+
+search.addEventListener('input', filterCards);
+filters.forEach(btn => {
+  btn.addEventListener('click', () => {
+    filters.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeCat = btn.dataset.cat;
+    filterCards();
+  });
+});
+</script>
+</body></html>

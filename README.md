@@ -1,2 +1,0 @@
-# seventeenk.com
-SeventeenK.com
