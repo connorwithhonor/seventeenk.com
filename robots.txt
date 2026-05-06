@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://seventeenk.com/sitemap.xml
