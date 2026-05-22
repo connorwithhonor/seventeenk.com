@@ -14,6 +14,12 @@ concurrency:
   group: deploy-production
   cancel-in-progress: false  # never cancel a deploy mid-flight
 
+# Opt into Node 24 for all actions/* — Node 20 is deprecated effective 2026-06-02.
+# Keeps actions/checkout@v4 and actions/setup-node@v4 running on modern Node
+# without forcing version bumps that might have other compatibility issues.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   safety-check:
     name: Anti-wipe safety check
@@ -190,7 +196,10 @@ jobs:
           # --no-build: skip Netlify's site-level build commands. We're deploying
           # the repo contents as-is. Any build a site needs should be done in CI
           # before this step (or via netlify.toml [build] command).
-          netlify deploy --dir=. --prod --no-build --message="git commit ${{ github.sha }} — ${{ github.event.head_commit.message }}"
+          # Use only the commit SHA + first line of message — full multi-line
+          # messages break the shell argument because of embedded newlines.
+          deploy_msg="git $(echo '${{ github.sha }}' | cut -c1-7) — $(git log -1 --pretty=%s)"
+          netlify deploy --dir=. --prod --no-build --message="$deploy_msg"
 
       - name: Verify deploy is live
         env:
