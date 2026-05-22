@@ -134,7 +134,10 @@ jobs:
           .github/
           scripts/
           EOF
-          netlify deploy --dir=. --prod --message="git commit ${{ github.sha }} — ${{ github.event.head_commit.message }}"
+          # --no-build: skip Netlify's site-level build commands. We're deploying
+          # the repo contents as-is. Any build a site needs should be done in CI
+          # before this step (or via netlify.toml [build] command).
+          netlify deploy --dir=. --prod --no-build --message="git commit ${{ github.sha }} — ${{ github.event.head_commit.message }}"
 
       - name: Verify deploy is live
         env:
