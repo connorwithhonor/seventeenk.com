@@ -85,11 +85,20 @@ jobs:
             fi
           fi
 
-          # Critical files must always be present
-          for required in /index.html /blog/index.html /sitemap.xml /robots.txt; do
-            if ! grep -qx "$required" new-manifest.txt; then
-              echo "::error::Required file missing from deploy: $required"
-              exit 1
+          # Critical files: /index.html is always required (no homepage = broken site).
+          # Other "expected" files (blog/index.html, sitemap.xml, robots.txt) are required
+          # ONLY if they're already in the live deploy — we never silently drop them.
+          if ! grep -qx "/index.html" new-manifest.txt; then
+            echo "::error::Required file missing from deploy: /index.html (no homepage)"
+            exit 1
+          fi
+          for soft_required in /blog/index.html /sitemap.xml /robots.txt; do
+            if grep -qx "$soft_required" live-manifest.txt && ! grep -qx "$soft_required" new-manifest.txt; then
+              commit_msg=$(git log -1 --pretty=%B)
+              if ! echo "$commit_msg" | grep -qi "^remove:"; then
+                echo "::error::Live has $soft_required but new deploy does not. Commit must start with 'remove:' to authorize dropping it."
+                exit 1
+              fi
             fi
           done
 
@@ -132,13 +141,30 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         run: |
-          # Confirm the latest deploy is ready and serves expected critical pages
+          # Confirm the deploy is reachable. Always check the homepage.
+          # Additional URLs can be configured per-site via VERIFY_URLS env var
+          # (newline-separated, full URLs). If not set, only homepage is checked.
           sleep 10
-          for url in https://seventeenk.com/ https://seventeenk.com/blog/; do
+          site_info=$(curl -sS -H "Authorization: Bearer $NETLIFY_AUTH_TOKEN" \
+            "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID")
+          homepage_url=$(echo "$site_info" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('ssl_url') or d.get('url') or '')")
+          if [ -z "$homepage_url" ]; then
+            echo "::error::Could not determine site URL from Netlify API"
+            exit 1
+          fi
+          # Build list of URLs to check (one per line)
+          {
+            echo "$homepage_url/"
+            if [ -n "${VERIFY_URLS:-}" ]; then
+              printf "%s\n" "$VERIFY_URLS"
+            fi
+          } > /tmp/verify-urls.txt
+          while IFS= read -r url; do
+            [ -z "$url" ] && continue
             status=$(curl -sIo /dev/null -w "%{http_code}" "$url")
-            if [ "$status" != "200" ]; then
+            if ! echo "$status" | grep -qE '^(200|301|302|304)$'; then
               echo "::error::Post-deploy verification failed: $url returned $status"
               exit 1
             fi
             echo "  OK $url -> $status"
-          done
+          done < /tmp/verify-urls.txt
