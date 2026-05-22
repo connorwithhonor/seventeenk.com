@@ -1,0 +1,144 @@
+name: Deploy to Netlify
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      skip_safety_check:
+        description: "Skip the anti-wipe safety check (DANGEROUS — only if you know you're removing content)"
+        required: false
+        default: "false"
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false  # never cancel a deploy mid-flight
+
+jobs:
+  safety-check:
+    name: Anti-wipe safety check
+    runs-on: ubuntu-latest
+    if: github.event.inputs.skip_safety_check != 'true'
+    outputs:
+      ok: ${{ steps.guard.outputs.ok }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Fetch current live manifest
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          # Get current production deploy id, then its file list
+          current_deploy=$(curl -sS -H "Authorization: Bearer $NETLIFY_AUTH_TOKEN" \
+            "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID" \
+            | python3 -c "import json,sys; print(json.load(sys.stdin).get('published_deploy',{}).get('id',''))")
+          if [ -z "$current_deploy" ]; then
+            echo "Could not fetch current deploy id. Aborting for safety."
+            exit 1
+          fi
+          echo "current_deploy=$current_deploy"
+          curl -sS -H "Authorization: Bearer $NETLIFY_AUTH_TOKEN" \
+            "https://api.netlify.com/api/v1/deploys/$current_deploy/files" \
+            | python3 -c "import json,sys; [print(x['path']) for x in json.load(sys.stdin)]" \
+            | sort > live-manifest.txt
+          echo "Live file count: $(wc -l < live-manifest.txt)"
+
+      - name: Build new manifest from repo
+        run: |
+          # List repo files matching what Netlify would publish (root publish dir)
+          find . -type f \
+            -not -path './.git/*' \
+            -not -path './.github/*' \
+            -not -path './scripts/*' \
+            -not -name 'CLAUDE.md' \
+            -not -name 'README*' \
+            | sed 's|^\./|/|' | sort > new-manifest.txt
+          echo "New file count: $(wc -l < new-manifest.txt)"
+
+      - name: Anti-wipe guard
+        id: guard
+        run: |
+          live_count=$(wc -l < live-manifest.txt)
+          new_count=$(wc -l < new-manifest.txt)
+          threshold=$((live_count * 80 / 100))
+
+          # Hard rule: never drop file count below 80% of live without manual override
+          if [ "$new_count" -lt "$threshold" ]; then
+            echo "::error::ANTI-WIPE GUARD TRIPPED: new deploy would have $new_count files, current live has $live_count (threshold: $threshold)."
+            echo "::error::If this is intentional, re-run with skip_safety_check=true."
+            exit 1
+          fi
+
+          # Show what would be removed (for human review in the action log)
+          echo "## Files in live but NOT in new deploy (would be removed)"
+          comm -23 live-manifest.txt new-manifest.txt | tee removed.txt
+          removed_count=$(wc -l < removed.txt)
+
+          # Allow up to 3 removals silently. More than 3 requires explicit "remove:" in commit msg.
+          if [ "$removed_count" -gt 3 ]; then
+            commit_msg=$(git log -1 --pretty=%B)
+            if ! echo "$commit_msg" | grep -qi "^remove:"; then
+              echo "::error::Deploy would remove $removed_count files. Commit must start with 'remove:' to authorize. Aborting."
+              exit 1
+            fi
+          fi
+
+          # Critical files must always be present
+          for required in /index.html /blog/index.html /sitemap.xml /robots.txt; do
+            if ! grep -qx "$required" new-manifest.txt; then
+              echo "::error::Required file missing from deploy: $required"
+              exit 1
+            fi
+          done
+
+          echo "ok=true" >> "$GITHUB_OUTPUT"
+          echo "Safety check passed: $new_count files, removing $removed_count."
+
+  deploy:
+    name: Deploy to Netlify production
+    runs-on: ubuntu-latest
+    needs: safety-check
+    if: always() && (needs.safety-check.result == 'success' || github.event.inputs.skip_safety_check == 'true')
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli@latest
+
+      - name: Deploy to production
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          # Exclude internal files from publish via .netlifyignore
+          cat > .netlifyignore <<'EOF'
+          CLAUDE.md
+          README.md
+          .github/
+          scripts/
+          EOF
+          netlify deploy --dir=. --prod --message="git commit ${{ github.sha }} — ${{ github.event.head_commit.message }}"
+
+      - name: Verify deploy is live
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          # Confirm the latest deploy is ready and serves expected critical pages
+          sleep 10
+          for url in https://seventeenk.com/ https://seventeenk.com/blog/; do
+            status=$(curl -sIo /dev/null -w "%{http_code}" "$url")
+            if [ "$status" != "200" ]; then
+              echo "::error::Post-deploy verification failed: $url returned $status"
+              exit 1
+            fi
+            echo "  OK $url -> $status"
+          done
