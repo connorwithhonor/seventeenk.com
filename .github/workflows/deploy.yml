@@ -105,6 +105,59 @@ jobs:
           echo "ok=true" >> "$GITHUB_OUTPUT"
           echo "Safety check passed: $new_count files, removing $removed_count."
 
+      - name: Content-corruption guard
+        run: |
+          # Lesson from the 2026-05-21 5-site wipe incident:
+          # Old "Netlify sync backup" scripts captured Netlify deploy-file API
+          # metadata JSON as if it were file content. When those repos got
+          # deployed, sites went down (serving 215-byte JSON instead of HTML).
+          # This step prevents that exact pattern from ever reaching production.
+          #
+          # See claude-memory/broken-repos-wipe-incident-2026-05-21.md.
+
+          corrupt_count=0
+          corrupt_files=""
+          while IFS= read -r path; do
+            path="${path#/}"
+            [ -z "$path" ] && continue
+            [ ! -f "$path" ] && continue
+            # The corruption signature: file starts with {"id":"/ and contains "deploy_id"
+            # in the first 300 bytes. This is the response shape from
+            # GET /api/v1/deploys/{deploy_id}/files/{path}.
+            head_bytes=$(head -c 300 "$path" 2>/dev/null)
+            if echo "$head_bytes" | grep -q '^{"id":"/' && echo "$head_bytes" | grep -q '"deploy_id"'; then
+              echo "::error::Corrupt content (Netlify API JSON metadata) detected in: /$path"
+              corrupt_count=$((corrupt_count + 1))
+              corrupt_files="$corrupt_files /$path"
+            fi
+          done < new-manifest.txt
+
+          if [ "$corrupt_count" -gt 0 ]; then
+            echo "::error::$corrupt_count file(s) contain JSON metadata instead of real content. Aborting before deploy."
+            echo "::error::Files: $corrupt_files"
+            echo "::error::To fix: re-fetch the affected files from https://{deploy_id}--{site_name}.netlify.app/{path}"
+            echo "::error::See claude-memory/broken-repos-wipe-incident-2026-05-21.md"
+            exit 1
+          fi
+
+          # Homepage must look like HTML
+          if [ -f index.html ]; then
+            size=$(wc -c < index.html)
+            if [ "$size" -lt 500 ]; then
+              echo "::error::index.html is only $size bytes — suspiciously small. Aborting."
+              exit 1
+            fi
+            if ! head -c 200 index.html | grep -qiE '^<(!DOCTYPE|html| *!doctype)'; then
+              echo "::error::index.html does not look like HTML (no DOCTYPE/html tag in first 200 bytes). Aborting."
+              echo "::error::First 100 bytes:"
+              head -c 100 index.html
+              exit 1
+            fi
+            echo "  /index.html content sanity: PASS ($size bytes, HTML)"
+          fi
+
+          echo "Content guard passed."
+
   deploy:
     name: Deploy to Netlify production
     runs-on: ubuntu-latest
