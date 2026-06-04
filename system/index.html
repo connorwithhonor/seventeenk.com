@@ -103,6 +103,20 @@
   .gd{color:var(--gold)}
   .cbox hr{border:0;border-top:1px solid var(--line);margin:9px 0}
   .cnote{color:var(--mut);font-size:13px;margin-top:8px}
+  /* lead form */
+  #report{max-width:620px;margin:0 auto}
+  .f{margin-bottom:1rem}
+  .f-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  @media(max-width:520px){.f-row{grid-template-columns:1fr}}
+  .f label{display:block;font-size:.85rem;color:var(--mut);font-weight:600;margin-bottom:.4rem}
+  .f input,.f select{width:100%;padding:.8rem .9rem;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font-size:1rem;font-family:inherit}
+  .f input:focus,.f select:focus{outline:2px solid var(--cyan);outline-offset:1px}
+  .f-consent{display:flex;gap:.6rem;align-items:flex-start;font-size:.85rem;color:var(--mut);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:.9rem;margin:.4rem 0 .9rem}
+  .f-consent input{width:auto;margin-top:.2rem}
+  .f-disc{font-size:.8rem;color:var(--mut);font-style:italic;margin-bottom:1rem}
+  .f-status{margin-top:.9rem;font-size:.95rem;min-height:1.2rem}
+  .f-status.ok{color:var(--good);font-weight:600}
+  .f-status.err{color:#ff8a8a;font-weight:600}
 </style>
 </head>
 <body>
@@ -160,6 +174,28 @@
     </div>
   </section>
 
+  <section id="report">
+    <h2>Get your home's numbers.</h2>
+    <p class="lead">Tell me your address and I'll send what your specific home is worth, plus the flat-fee math on your number. No pitch, no pressure.</p>
+    <form id="sk-form" novalidate style="margin-top:1.4rem">
+      <input type="hidden" name="campaign_source" value="seventeenk-web">
+      <input type="hidden" name="source_url" value="https://seventeenk.com/system">
+      <input type="text" name="_hp" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="f-row">
+        <div class="f"><label for="sk-first">First name *</label><input id="sk-first" name="first_name" type="text" required autocomplete="given-name"></div>
+        <div class="f"><label for="sk-last">Last name *</label><input id="sk-last" name="last_name" type="text" required autocomplete="family-name"></div>
+      </div>
+      <div class="f"><label for="sk-email">Email *</label><input id="sk-email" name="email" type="email" required autocomplete="email"></div>
+      <div class="f"><label for="sk-phone">Phone (optional, for the numbers and a timing check-in)</label><input id="sk-phone" name="phone" type="tel" autocomplete="tel" placeholder="(661) 400-1720"></div>
+      <div class="f"><label for="sk-addr">Property address (optional)</label><input id="sk-addr" name="property_address" type="text" autocomplete="street-address" placeholder="Street + number, city"></div>
+      <div class="f"><label for="sk-tl">Timeline</label><select id="sk-tl" name="timeline"><option value="">Choose one</option><option value="just-curious">Just curious about my number</option><option value="ready-now">Ready in the next 90 days</option><option value="6-12-months">6 to 12 months</option><option value="12-plus-months">12+ months</option></select></div>
+      <label class="f-consent"><input type="checkbox" name="consent" required><span>I agree to receive my home-value info and occasional market updates from Connor MacIvor. Message and data rates may apply for any optional SMS. Reply STOP or unsubscribe anytime.</span></label>
+      <p class="f-disc">If your home is currently listed for sale, this is not a solicitation.</p>
+      <button type="submit" class="btn btn-p" id="sk-submit" style="width:100%">Send me my numbers &rarr;</button>
+      <div class="f-status" id="sk-status" role="status" aria-live="polite"></div>
+    </form>
+  </section>
+
   <section class="cta">
     <h2>You might not be ready. That's fine.</h2>
     <p class="lead" style="margin:0 auto">Maybe it's this year, maybe it's five years from now. Whenever you're ready, I'll be here. If you'd like the real numbers for your specific home, reach out. No pressure, no pitch.</p>
@@ -192,6 +228,28 @@
     else{kl.textContent='Percentage is lower by';kv.textContent=m(-k);kv.className='';nt.textContent='At this price a percentage edges out the flat fee. The flat $17,000 wins on higher-value homes, and you get full service either way.';}
   }
   hv.addEventListener('input',c); c();
+})();
+</script>
+<script>
+(function(){
+  var form=document.getElementById('sk-form'); if(!form)return;
+  var btn=document.getElementById('sk-submit'), st=document.getElementById('sk-status');
+  form.addEventListener('submit',async function(e){
+    e.preventDefault(); st.textContent=''; st.className='f-status';
+    if(!form.checkValidity()){st.textContent='Please fill the required fields and confirm consent.';st.className='f-status err';return;}
+    var data=Object.fromEntries(new FormData(form).entries());
+    btn.disabled=true; var bt=btn.textContent; btn.textContent='Sending…';
+    try{
+      var res=await fetch('/.netlify/functions/seventeenk-submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+      var out=await res.json().catch(function(){return{};});
+      if(!res.ok) throw new Error(out.message||'error');
+      st.innerHTML='&#10003; Got it. Connor will send your numbers to <strong>'+(data.email||'your inbox')+'</strong> shortly.';
+      st.className='f-status ok'; btn.textContent='Sent'; form.reset();
+    }catch(err){
+      st.textContent='Could not send right now. Try again, or text 661-263-4801.';
+      st.className='f-status err'; btn.disabled=false; btn.textContent=bt;
+    }
+  });
 })();
 </script>
 </body>

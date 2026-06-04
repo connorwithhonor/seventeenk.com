@@ -4,6 +4,11 @@
 
 [build]
   publish = "."
+  functions = "netlify/functions"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
 
 # Disable HTML post-processing so we never inject favicon/meta tags multiple times
 # (Previous manual-deploy sessions injected duplicate favicon blocks; auto-deploy from
