@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Connor with Honor Jerusalem cross">
-  <path d="M70 60 H442 V250 L420 330 L360 410 L256 470 L152 410 L92 330 L70 250 Z" fill="#8B6E23"/>
-  <path d="M86 76 H426 V248 L406 322 L350 396 L256 450 L162 396 L106 322 L86 248 Z" fill="#C8A24B"/>
-  <g fill="#111">
+  <path d="M64 54 H448 V252 L426 334 L364 416 L256 478 L148 416 L86 334 L64 252 Z" fill="#000000"/>
+  <path d="M100 88 H412 V246 L393 318 L342 390 L256 444 L170 390 L119 318 L100 246 Z" fill="#EAAC19"/>
+  <g fill="#000000">
     <rect x="232" y="150" width="48" height="242"/>
     <rect x="150" y="238" width="212" height="62"/>
     <rect x="204" y="150" width="104" height="26"/>
