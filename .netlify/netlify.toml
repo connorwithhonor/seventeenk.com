@@ -1,14 +1,13 @@
+functionsDirectory = "/Users/macv/dev/seventeenk.com/netlify/functions"
+functionsDirectoryOrigin = "config"
 redirectsOrigin = "config"
 plugins = []
 headers = []
 
-[functions]
-
-[functions."*"]
-
 [build]
 publish = "/Users/macv/dev/seventeenk.com"
 publishOrigin = "config"
+functions = "/Users/macv/dev/seventeenk.com/netlify/functions"
 
 [build.environment]
 
@@ -25,6 +24,11 @@ pretty_urls = true
 [build.processing.js]
 
 [build.services]
+
+[functions]
+
+[functions."*"]
+node_bundler = "esbuild"
 
 [[redirects]]
 from = "/CLAUDE.md"
